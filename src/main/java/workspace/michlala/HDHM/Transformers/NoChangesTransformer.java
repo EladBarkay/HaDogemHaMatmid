@@ -1,10 +1,10 @@
 package workspace.michlala.HDHM.Transformers;
 
-import workspace.michlala.HDHM.RawData;
+import java.util.Properties;
 
 public class NoChangesTransformer implements TransformAble{
     @Override
-    public RawData transform(RawData oldData) {
+    public Properties transform(Properties oldData) {
         return TransformAble.super.transform(oldData);
     }
 }

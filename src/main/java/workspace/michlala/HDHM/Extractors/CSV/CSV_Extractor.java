@@ -1,12 +1,11 @@
 package workspace.michlala.HDHM.Extractors.CSV;
 
 import workspace.michlala.HDHM.Extractors.Extractor;
-import workspace.michlala.HDHM.RawData;
 
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 
 public class CSV_Extractor extends Extractor {
 
@@ -26,8 +25,8 @@ public class CSV_Extractor extends Extractor {
     }
 
     @Override
-    public RawData extract() throws IOException {
-        RawData rawData;
+    public Properties extract() throws IOException {
+        Properties properties;
         String path = (String) getSettings().get("path");
         ArrayList<String[]> CSVData;
         try {
@@ -38,22 +37,22 @@ public class CSV_Extractor extends Extractor {
             System.out.print("error 0_0");
             throw e;
         }
-        rawData = CSVToRaw(CSVData);
-        return rawData;
+        properties = CSVToProperties(CSVData);
+        return properties;
     }
 
-    private RawData CSVToRaw(ArrayList<String[]> csvData){
+    private Properties CSVToProperties(ArrayList<String[]> csvData){
         String[] firstLine = csvData.remove(0);
-        RawData data = new RawData();
-        ArrayList<HashMap<String, Object>> toInsert = new ArrayList<>();
+        Properties allData = new Properties();
+        ArrayList<Properties> toInsert = new ArrayList<>();
         for (String[] line : csvData){
-            HashMap<String, Object> lineData = new HashMap<>();
+            Properties lineData = new Properties();
             for (int i = 0; i < line.length; i++) {
                 lineData.put(firstLine[i], line[i]);
             }
             toInsert.add(lineData);
         }
-        data.putWithIgnoredName(toInsert);
-        return data;
+        allData.put("rows", toInsert);
+        return allData;
     }
 }

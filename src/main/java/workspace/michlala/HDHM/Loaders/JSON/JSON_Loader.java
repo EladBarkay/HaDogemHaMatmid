@@ -2,7 +2,6 @@ package workspace.michlala.HDHM.Loaders.JSON;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import workspace.michlala.HDHM.Loaders.Loader;
-import workspace.michlala.HDHM.RawData;
 
 import java.io.*;
 import java.util.*;
@@ -84,28 +83,10 @@ public class JSON_Loader extends Loader {
 
 
     @Override
-    public void load(RawData data) throws IOException {
+    public void load(Properties data) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        Set<String> namedKeys = data.namedKeySet();
-        Set<String> unnamedKeys = data.ignoredKeySet();
-
-        for (String unnamedKey : unnamedKeys){
-                if (data.get(unnamedKey).getClass().equals(RawData.class)) {
-                    load((RawData) data.get(unnamedKey));
-                } else {
-                    write(mapper.writeValueAsString(data.getVariables().get(unnamedKey)));
-                }
-            }
-
-        for (String key : namedKeys) {
-            if (data.get(key).getClass().equals(RawData.class)) {
-                load((RawData) data.get(key));
-            } else {
-                write(mapper.writeValueAsString(data.getVariables()));
-                break;
-            }
-        }
+        write(mapper.writeValueAsString(data));
     }
 
     public void write(String toWrite) throws IOException {

@@ -2,11 +2,11 @@ package workspace.michlala.HDHM.ETLs;
 
 import workspace.michlala.HDHM.Extractors.Extractor;
 import workspace.michlala.HDHM.Loaders.Loader;
-import workspace.michlala.HDHM.RawData;
 import workspace.michlala.HDHM.Transformers.TransformAble;
 
 import javax.naming.NoInitialContextException;
 import java.io.IOException;
+import java.util.Properties;
 
 public class ETL {
 
@@ -48,7 +48,7 @@ public class ETL {
     }
 
     public void start() throws NoInitialContextException, IOException {
-        RawData data;
+        Properties data;
         if (extractor == null){
             throw new NoInitialContextException("No Excecuter is set");
         }

@@ -1,9 +1,10 @@
 package workspace.michlala.HDHM.Transformers;
-import workspace.michlala.HDHM.RawData;
+
+import java.util.Properties;
 
 public interface TransformAble {
 
-    default RawData transform(RawData oldData) {
+    default Properties transform(Properties oldData) {
         return oldData;
     }
 }

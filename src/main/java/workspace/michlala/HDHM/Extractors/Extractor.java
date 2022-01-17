@@ -1,9 +1,8 @@
 package workspace.michlala.HDHM.Extractors;
 
-import workspace.michlala.HDHM.RawData;
-
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Properties;
 
 public abstract class Extractor {
     HashMap<String, Object> settings;
@@ -23,7 +22,7 @@ public abstract class Extractor {
         this.settings = settings;
     }
 
-    public RawData extract() throws IOException {
+    public Properties extract() throws IOException {
         return null;
     }
 
