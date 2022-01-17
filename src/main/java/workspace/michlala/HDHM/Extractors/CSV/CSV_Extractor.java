@@ -3,6 +3,7 @@ package workspace.michlala.HDHM.Extractors.CSV;
 import workspace.michlala.HDHM.Extractors.Extractor;
 import workspace.michlala.HDHM.RawData;
 
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,14 +46,16 @@ public class CSV_Extractor extends Extractor {
         String[] firstLine = csvData.remove(0);
         RawData toRet = new RawData();
         int lineVarsLen = firstLine.length;
-        int lineCounter = 1;
         for (String[] lineVars : csvData){
             RawData toAdd = new RawData();
             for (int i = 0; i < lineVarsLen; i++) {
-                toAdd.put((String) firstLine[i], lineVars[i]);
+                try {
+                    toAdd.put(firstLine[i], lineVars[i]);
+                } catch (NamingException e) {
+                    e.printStackTrace();
+                }
             }
-            toRet.put("line " + lineCounter, toAdd);
-            lineCounter++;
+            toRet.putWithIgnoredName(toAdd);
         }
         return toRet;
     }
