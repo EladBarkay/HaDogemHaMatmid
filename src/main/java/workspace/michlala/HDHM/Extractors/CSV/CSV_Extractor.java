@@ -42,21 +42,18 @@ public class CSV_Extractor extends Extractor {
         return rawData;
     }
 
-    private RawData CSVToRaw(ArrayList<String[]> csvData) {
+    private RawData CSVToRaw(ArrayList<String[]> csvData){
         String[] firstLine = csvData.remove(0);
-        RawData toRet = new RawData();
-        int lineVarsLen = firstLine.length;
-        for (String[] lineVars : csvData){
-            RawData toAdd = new RawData();
-            for (int i = 0; i < lineVarsLen; i++) {
-                try {
-                    toAdd.put(firstLine[i], lineVars[i]);
-                } catch (NamingException e) {
-                    e.printStackTrace();
-                }
+        RawData data = new RawData();
+        ArrayList<HashMap<String, Object>> toInsert = new ArrayList<>();
+        for (String[] line : csvData){
+            HashMap<String, Object> lineData = new HashMap<>();
+            for (int i = 0; i < line.length; i++) {
+                lineData.put(firstLine[i], line[i]);
             }
-            toRet.putWithIgnoredName(toAdd);
+            toInsert.add(lineData);
         }
-        return toRet;
+        data.putWithIgnoredName(toInsert);
+        return data;
     }
 }
