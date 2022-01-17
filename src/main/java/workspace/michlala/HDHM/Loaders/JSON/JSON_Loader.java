@@ -1,6 +1,7 @@
 package workspace.michlala.HDHM.Loaders.JSON;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import workspace.michlala.HDHM.Loaders.Loader;
 
 import java.io.*;
@@ -28,6 +29,8 @@ public class JSON_Loader extends Loader {
 
     private FileWriter getFileWriter() throws IOException {
         if (this.mostRelevantPath.equals(getRelevantPath())){
+            if (writer==null)
+                setPath(mostRelevantPath);
             return writer;
         }
         else{
@@ -86,13 +89,7 @@ public class JSON_Loader extends Loader {
     public void load(Properties data) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data));
+        mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), data);
     }
 
-    public void write(String toWrite) throws IOException {
-        FileWriter writer = getFileWriter();
-
-        writer.append(toWrite);
-        writer.flush();
-    }
 }
