@@ -86,7 +86,7 @@ public class JSON_Loader extends Loader {
     public void load(Properties data) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        write(mapper.writeValueAsString(data));
+        write(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data));
     }
 
     public void write(String toWrite) throws IOException {
