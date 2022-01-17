@@ -1,55 +1,117 @@
 package workspace.michlala.HDHM.Loaders.JSON;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import workspace.michlala.HDHM.Loaders.Loader;
 import workspace.michlala.HDHM.RawData;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
 public class JSON_Loader extends Loader {
+    private final String JSON_TYPE = ".json";
+    private final int MAX_LINES = 50000;
+
+    private String mostRelevantPath;
+    private FileWriter writer;
 
     public JSON_Loader(HashMap<String, Object> settings) {
         super(settings);
     }
 
+    public JSON_Loader(String path){
+        super();
+        setPath(path);
+    }
+
+
     public JSON_Loader() {
+    }
+
+    private FileWriter getFileWriter() throws IOException {
+        if (this.mostRelevantPath.equals(getRelevantPath())){
+            return writer;
+        }
+        else{
+            this.writer.close();
+            this.writer = new FileWriter(getRelevantPath());
+            this.mostRelevantPath = getRelevantPath();
+        }
+        return this.writer;
     }
 
     public void setPath(String path){
         setSettings(new HashMap<>(){{put("path", path);}});
+        try {
+            writer = new FileWriter(path);
+            mostRelevantPath = getRelevantPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getPath(){
         return (String) getSettings().get("path");
     }
 
+    private String getRelevantPath(){
+        String absPath = getPath();
+        if (getPath().toLowerCase(Locale.ROOT).endsWith(JSON_TYPE)){
+            absPath = getPath().substring(0, getPath().length()-5);
+        }
+        int counter = 0;
+        String finalAbsPath = absPath;
+        while (new File(finalAbsPath + JSON_TYPE).exists()
+                && fileLines(finalAbsPath + JSON_TYPE) >= MAX_LINES){
+            finalAbsPath = absPath + "(" + counter + ")";
+        }
+        return finalAbsPath + JSON_TYPE;
+    }
+
+    private int fileLines(String path) {
+        int counter = 0;
+        try {
+            Scanner s = new Scanner(new File(path));
+            while (s.hasNextLine()){
+                s.nextLine();
+                counter++;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return counter;
+    }
+
+
+
     @Override
     public void load(RawData data) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        write(mapper.writeValueAsString(data.getVariables()));
-        /*Set<String> keys = data.keySet();
-        for (String key : keys){
-            if (data.get(key).getClass().equals(RawData.class)){
-                load((RawData) data.get(key));
+
+        Set<String> namedKeys = data.namedKeySet();
+        Set<String> unnamedKeys = data.ignoredKeySet();
+
+        for (String unnamedKey : unnamedKeys){
+                if (data.get(unnamedKey).getClass().equals(RawData.class)) {
+                    load((RawData) data.get(unnamedKey));
+                } else {
+                    write(mapper.writeValueAsString(data.getVariables().get(unnamedKey)));
+                }
             }
-            else{
+
+        for (String key : namedKeys) {
+            if (data.get(key).getClass().equals(RawData.class)) {
+                load((RawData) data.get(key));
+            } else {
                 write(mapper.writeValueAsString(data.getVariables()));
                 break;
             }
-        }*/
+        }
     }
 
     public void write(String toWrite) throws IOException {
-        FileWriter writer = new FileWriter(getPath());
+        FileWriter writer = getFileWriter();
 
         writer.append(toWrite);
         writer.flush();
-        writer.close();
-
     }
 }
