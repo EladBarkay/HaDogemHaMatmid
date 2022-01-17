@@ -88,8 +88,10 @@ public class JSON_Loader extends Loader {
     @Override
     public void load(Properties data) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-
-        mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), data);
+        for (Object key : data.keySet()){
+            if (key == "rows"){
+                mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), data.get("rows"));
+            }
+        }
     }
-
 }
