@@ -1,6 +1,5 @@
 package workspace.michlala.HDHM.Loaders.FileLoaders.XML;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import workspace.michlala.HDHM.Loaders.FileLoaders.FileLoader;
 
@@ -25,7 +24,11 @@ public class XML_Loader extends FileLoader {
         for (Properties subData : dividedData) {
             for (Object key : subData.keySet()) {
                 if (subData.get(key) instanceof Collection<?>) {
-                    mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), subData.get("rows"));
+                    String arrayName = (String) getSettings().get("arrayName");
+                    String arrayRecordName = (String) getSettings().get("recordName");
+
+                    mapper.writerWithDefaultPrettyPrinter().withRootName(arrayName).
+                            writeValue(getFileWriter(), subData.get(key));
                 }
             }
         }
