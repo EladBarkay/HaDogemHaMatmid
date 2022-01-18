@@ -14,12 +14,16 @@ public abstract class Loader {
     protected Loader() {
     }
 
-    protected HashMap<String, Object> getSettings() {
+    public HashMap<String, Object> getSettings() {
         return settings;
     }
 
-    protected void setSettings(HashMap<String, Object> settings) {
+    public void setSettings(HashMap<String, Object> settings) {
         this.settings = settings;
+    }
+
+    public void addSetting(String name, Object val) {
+        this.settings.put(name, val);
     }
 
     public void load(Properties data) throws IOException {
