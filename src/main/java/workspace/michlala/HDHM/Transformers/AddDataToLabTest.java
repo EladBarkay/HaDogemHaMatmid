@@ -33,9 +33,14 @@ public class AddDataToLabTest implements TransformAble{
 
         //adding the data to the records
         HealthCareInfoProvider infoProvider = new HealthCareInfoProvider();
+        int idNum, idType;
         for (Properties record : records){
             try {
-                PersonInsured person = infoProvider.fetchInfo((Integer) record.get("IDNum"), (Integer) record.get("IDType"));
+                idNum = Integer.parseInt((String)record.get("IDNum"));
+                idType = Integer.parseInt((String)record.get("IDType"));
+
+                PersonInsured person = infoProvider.fetchInfo(idNum, idType);
+
                 record.put("JOIN_DATE", person.getJoinDate());
                 record.put("HEALTH_CARE_ID", person.getHealthCareId());
                 record.put("HEALTH_CARE_NAME", person.getHealthCareName());
