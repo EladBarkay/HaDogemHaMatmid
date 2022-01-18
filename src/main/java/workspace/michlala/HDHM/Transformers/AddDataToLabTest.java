@@ -4,6 +4,7 @@ import health_care_provider.HealthCareInfoProvider;
 import health_care_provider.errors.InvalidIdException;
 import health_care_provider.models.PersonInsured;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -35,17 +36,20 @@ public class AddDataToLabTest implements TransformAble{
         HealthCareInfoProvider infoProvider = new HealthCareInfoProvider();
         int idNum, idType;
         for (Properties record : records){
-            try {
-                idNum = Integer.parseInt((String)record.get("IDNum"));
-                idType = Integer.parseInt((String)record.get("IDType"));
+            idNum = Integer.parseInt((String)record.get("IDNum"));
+            idType = Integer.parseInt((String)record.get("IDType"));
 
+
+            try {
                 PersonInsured person = infoProvider.fetchInfo(idNum, idType);
 
-                record.put("JOIN_DATE", person.getJoinDate());
+                record.put("JOIN_DATE", person.getJoinDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString());
                 record.put("HEALTH_CARE_ID", person.getHealthCareId());
                 record.put("HEALTH_CARE_NAME", person.getHealthCareName());
-            } catch (InvalidIdException e) {
-                e.printStackTrace();
+            }catch (InvalidIdException e){
+                record.put("JOIN_DATE", "");
+                record.put("HEALTH_CARE_ID", "");
+                record.put("HEALTH_CARE_NAME", "");
             }
         }
 

@@ -9,7 +9,7 @@ import java.util.*;
 
 public class JSON_Loader extends Loader {
     private final String JSON_TYPE = ".json";
-    private final int MAX_LINES = 4600;
+    private final int MAX_LINES = 50000;
 
     private String mostRelevantPath;
 
