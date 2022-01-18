@@ -12,9 +12,9 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) {
         ETL test = new ETL();
-        CSV_Extractor_common_csv csv_extractor = new CSV_Extractor_common_csv("src/main/resources/MadaReports.csv");
+        CSV_Extractor_common_csv csv_extractor = new CSV_Extractor_common_csv("src/main/resources/LabTests.csv");
         AddDataToLabTest addDataToLabTest = new AddDataToLabTest();
-        JSON_Loader json_loader = new JSON_Loader("src/main/resources/MadaReports.json");
+        JSON_Loader json_loader = new JSON_Loader("src/main/resources/results.json");
 
         test.setExtractor(csv_extractor);
         test.addTransformer(addDataToLabTest);
