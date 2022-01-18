@@ -1,5 +1,6 @@
 package workspace.michlala.HDHM.Loaders.JSON;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import workspace.michlala.HDHM.Loaders.Loader;
@@ -90,8 +91,64 @@ public class JSON_Loader extends Loader {
         ObjectMapper mapper = new ObjectMapper();
         for (Object key : data.keySet()){
             if (key == "rows"){
+                getDividedData(data);
                 mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), data.get("rows"));
             }
         }
+    }
+
+    /*
+    @Override
+    public void load(Properties data) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList<Properties> dividedData = getDividedData(data);
+        for (Properties subData : dividedData){
+            for (Object key : subData.keySet()){
+                if (key == "rows"){
+                    mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), subData.get("rows"));
+                }
+                else{
+                    mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), new Properties(){{put(key, subData.get(key));}});
+                }
+            }
+        }
+    }
+*/
+    private ArrayList<Properties> getDividedData(Properties data) {
+        ObjectMapper mapper = new ObjectMapper();
+
+        ArrayList<Properties> toRet = new ArrayList<>();
+
+        Properties tempProperty = new Properties();
+        ArrayList<Properties> subProperties;
+
+        if (data.keySet().size() == 1){
+            Object key = data.keySet().iterator().next();
+            if (data.get(key) instanceof Collection<?>){
+                ArrayList<Properties> subData = new ArrayList<>((Collection<? extends Properties>) data.get(key));
+                tempProperty = new Properties();
+                subProperties = new ArrayList<>();
+                tempProperty.put(key, subProperties);
+                for (Properties property : subData){
+                    subProperties.add(property);
+                    tempProperty.replace(key, subProperties);
+
+                    String toPrint = "";
+                    try {
+                        toPrint = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tempProperty);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    if (toPrint.length() - toPrint.replaceAll("\n", "").length() > 4950){
+                        toRet.add(tempProperty);
+                        subProperties = new ArrayList<>();
+                        tempProperty.replace(key, subProperties);
+                    }
+                }
+            }
+        }
+
+        toRet.add(tempProperty);
+        return toRet;
     }
 }
