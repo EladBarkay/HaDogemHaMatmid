@@ -9,18 +9,22 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
-public class CSV_Extractor_2 extends Extractor {
+public class CSV_Extractor_common_csv extends Extractor {
 
-    public CSV_Extractor_2(HashMap<String, Object> settings) {
+    public CSV_Extractor_common_csv(HashMap<String, Object> settings) {
         super(settings);
     }
 
-    public CSV_Extractor_2() {
+    public CSV_Extractor_common_csv() {
+        super();
     }
 
+    public CSV_Extractor_common_csv(String path){
+        super();
+        setPath(path);
+    }
     public void setPath(String path){
         setSettings(new HashMap<>(){{put("path", path);}});
     }
