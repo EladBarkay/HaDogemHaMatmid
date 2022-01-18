@@ -10,10 +10,9 @@ import java.util.*;
 
 public class JSON_Loader extends Loader {
     private final String JSON_TYPE = ".json";
-    private final int MAX_LINES = 50000;
+    private final int MAX_LINES = 4600;
 
     private String mostRelevantPath;
-    private FileWriter writer;
 
     public JSON_Loader(HashMap<String, Object> settings) {
         super(settings);
@@ -24,32 +23,17 @@ public class JSON_Loader extends Loader {
         setPath(path);
     }
 
-
     public JSON_Loader() {
     }
 
     private FileWriter getFileWriter() throws IOException {
-        if (this.mostRelevantPath.equals(getRelevantPath())){
-            if (writer==null)
-                setPath(mostRelevantPath);
-            return writer;
-        }
-        else{
-            this.writer.close();
-            this.writer = new FileWriter(getRelevantPath());
-            this.mostRelevantPath = getRelevantPath();
-        }
-        return this.writer;
+        this.mostRelevantPath = getRelevantPath();
+        return new FileWriter(this.mostRelevantPath);
     }
 
     public void setPath(String path){
         setSettings(new HashMap<>(){{put("path", path);}});
-        try {
-            writer = new FileWriter(path);
-            mostRelevantPath = getRelevantPath();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mostRelevantPath = getRelevantPath();
     }
 
     public String getPath(){
@@ -63,9 +47,9 @@ public class JSON_Loader extends Loader {
         }
         int counter = 0;
         String finalAbsPath = absPath;
-        while (new File(finalAbsPath + JSON_TYPE).exists()
-                && fileLines(finalAbsPath + JSON_TYPE) >= MAX_LINES){
+        while (new File(finalAbsPath + JSON_TYPE).exists()){
             finalAbsPath = absPath + "(" + counter + ")";
+            counter++;
         }
         return finalAbsPath + JSON_TYPE;
     }
@@ -89,31 +73,16 @@ public class JSON_Loader extends Loader {
     @Override
     public void load(Properties data) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        for (Object key : data.keySet()){
-            if (key == "rows"){
-                getDividedData(data);
-                mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), data.get("rows"));
-            }
-        }
-    }
-
-    /*
-    @Override
-    public void load(Properties data) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         ArrayList<Properties> dividedData = getDividedData(data);
         for (Properties subData : dividedData){
             for (Object key : subData.keySet()){
                 if (key == "rows"){
                     mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), subData.get("rows"));
                 }
-                else{
-                    mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), new Properties(){{put(key, subData.get(key));}});
-                }
             }
         }
     }
-*/
+
     private ArrayList<Properties> getDividedData(Properties data) {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -131,17 +100,17 @@ public class JSON_Loader extends Loader {
                 tempProperty.put(key, subProperties);
                 for (Properties property : subData){
                     subProperties.add(property);
-                    tempProperty.replace(key, subProperties);
-
                     String toPrint = "";
                     try {
-                        toPrint = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tempProperty);
+                        toPrint = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tempProperty.get(key));
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
-                    if (toPrint.length() - toPrint.replaceAll("\n", "").length() > 4950){
-                        toRet.add(tempProperty);
+                    if (countLines(toPrint) > MAX_LINES){
+                        subProperties.remove(subProperties.size()-1);
+                        toRet.add((Properties) tempProperty.clone());
                         subProperties = new ArrayList<>();
+                        subProperties.add(property);
                         tempProperty.replace(key, subProperties);
                     }
                 }
@@ -150,5 +119,10 @@ public class JSON_Loader extends Loader {
 
         toRet.add(tempProperty);
         return toRet;
+    }
+
+    private static int countLines(String str){
+        String[] lines = str.split("\r\n|\r|\n");
+        return  lines.length;
     }
 }
