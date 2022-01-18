@@ -16,6 +16,8 @@ public class Main {
         AddDataToLabTest addDataToLabTest = new AddDataToLabTest();
         JSON_Loader json_loader = new JSON_Loader("src/main/resources/results.json", ".json", 50000);
         XML_Loader xml_loader = new XML_Loader("src/main/resources/results.xml", ".xml", 50000);
+        xml_loader.addSetting("arrayName", "LabTests");
+        xml_loader.addSetting("recordName", "LabTest");
         test.setExtractor(csv_extractor);
         test.addTransformer(addDataToLabTest);
         test.setLoader(xml_loader);
