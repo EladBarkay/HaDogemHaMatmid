@@ -41,7 +41,7 @@ public class ETL {
         this.transformers = transformers;
     }
 
-    public void addTransformer(TransformAble toAdd){
+    public void addTransformer(TransformAble toAdd) {
         this.transformers.add(toAdd);
     }
     
@@ -55,14 +55,14 @@ public class ETL {
 
     public void start() throws NoInitialContextException, IOException {
         Properties data;
-        if (extractor == null){
+        if (extractor == null) {
             throw new NoInitialContextException("No Excecuter is set");
         }
         data = extractor.extract();
-        for (TransformAble transformer : transformers){
+        for (TransformAble transformer : transformers) {
             data = transformer.transform(data);
         }
-        if (loader == null){
+        if (loader == null) {
             throw new NoInitialContextException("No Loader is set");
         }
         loader.load(data);
