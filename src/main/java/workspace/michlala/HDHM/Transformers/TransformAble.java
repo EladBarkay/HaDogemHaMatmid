@@ -4,7 +4,5 @@ import java.util.Properties;
 
 public interface TransformAble {
 
-    default Properties transform(Properties oldData) {
-        return oldData;
-    }
+    Properties transform(Properties oldData);
 }
