@@ -1,31 +1,36 @@
-package workspace.michlala.HDHM.Loaders.JSON;
+package workspace.michlala.HDHM.Loaders.FileLoaders;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import workspace.michlala.HDHM.Loaders.Loader;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.util.*;
 
-public class JSON_Loader extends Loader {
-    private final String JSON_TYPE = ".json";
-    private final int MAX_LINES = 50000;
+public class FileLoader extends Loader {
 
+    private String type;
     private String mostRelevantPath;
+    private Integer maxLines;
 
-    public JSON_Loader(HashMap<String, Object> settings) {
-        super(settings);
+    public FileLoader(String path, String type) {
+        super();
+        setPath(path);
+        this.type = type;
+        maxLines = null;
     }
 
-    public JSON_Loader(String path) {
+    public FileLoader(String path, String type, int maxLines) {
         super();
+        this.type = type;
+        this.maxLines = maxLines;
         setPath(path);
     }
 
-    public JSON_Loader() {
-    }
-
-    private FileWriter getFileWriter() throws IOException {
+    public FileWriter getFileWriter() throws IOException {
         this.mostRelevantPath = getRelevantPath();
         return new FileWriter(this.mostRelevantPath);
     }
@@ -43,35 +48,33 @@ public class JSON_Loader extends Loader {
 
     private String getRelevantPath() {
         String absPath = getPath();
-        if (getPath().toLowerCase(Locale.ROOT).endsWith(JSON_TYPE)) {
+        if (getPath().toLowerCase(Locale.ROOT).endsWith(type)) {
             absPath = getPath().substring(0, getPath().length() - 5);
         }
         int counter = 0;
         String finalAbsPath = absPath;
-        while (new File(finalAbsPath + JSON_TYPE).exists()) {
+        while (new File(finalAbsPath + type).exists()) {
             finalAbsPath = absPath + "(" + counter + ")";
             counter++;
         }
-        return finalAbsPath + JSON_TYPE;
+        return finalAbsPath + type;
     }
-
 
     @Override
     public void load(Properties data) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayList<Properties> dividedData = getDividedData(data);
-        for (Properties subData : dividedData) {
-            for (Object key : subData.keySet()) {
-                if (key == "rows") {
-                    mapper.writerWithDefaultPrettyPrinter().writeValue(getFileWriter(), subData.get("rows"));
-                }
-            }
-        }
+        super.load(data);
     }
 
     @SuppressWarnings("unchecked")
-    private ArrayList<Properties> getDividedData(Properties data) {
-        ObjectMapper mapper = new ObjectMapper();
+    public ArrayList<Properties> getDividedData(Properties data, ObjectMapper mapper) {
+
+        if (maxLines == null)
+            return new ArrayList<Properties>() {{
+                add(data);
+            }};
+
+        if (maxLines <= 0)
+            throw new InvalidParameterException("Max lines cant be negative");
 
         ArrayList<Properties> toRet = new ArrayList<>();
 
@@ -93,7 +96,7 @@ public class JSON_Loader extends Loader {
                     } catch (JsonProcessingException e) {
                         e.printStackTrace();
                     }
-                    if (countLines(toPrint) > MAX_LINES) {
+                    if (countLines(toPrint) > maxLines) {
                         subProperties.remove(subProperties.size() - 1);
                         toRet.add((Properties) tempProperty.clone());
                         subProperties = new ArrayList<>();
@@ -109,7 +112,11 @@ public class JSON_Loader extends Loader {
     }
 
     private static int countLines(String str) {
-        String[] lines = str.split("\r\n|\r|\n");
-        return lines.length;
+        final Integer[] counter = {0};
+        str.chars().forEach(x -> {
+            if ((char) x == '\n')
+                counter[0]++;
+        });
+        return counter[0];
     }
 }
